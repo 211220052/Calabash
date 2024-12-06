@@ -15,7 +15,7 @@ public class Tile<T extends Thing> {
         this.thing.setTile(this);
     }
 
-    public void setCreatureOnThing(Creature creature) {
+    public synchronized void setCreatureOnThing(Creature creature) {
         if(this.thing.isCapable()){
             this.thing.setCreature(creature);
             creature.setTile(this);

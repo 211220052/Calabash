@@ -60,7 +60,7 @@ public class Thing extends Thread{
         return creature;
     }
 
-    public void setCreature(Creature creature) {
+    public synchronized void setCreature(Creature creature) {
         if(capable){
             this.creature = creature;
         }

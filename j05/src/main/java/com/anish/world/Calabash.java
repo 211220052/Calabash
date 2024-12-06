@@ -18,22 +18,13 @@ public class Calabash extends Creature{
         health = 1000;
         speed = 2;
         attack = 50;
-        vision = 4;
+        vision = 8;
         team = CALABASH;
         identity = i;
         isControlled = false;
     }
 
-    public Calabash(Calabash calabash) {
-        super(calabash.getColor(), (char) 2, calabash.getWorld());
-        health = calabash.getHealth();
-        speed = calabash.getSpeed();
-        attack = calabash.getAttack();
-        vision = calabash.getVision();
-        team = CALABASH;
-        identity = calabash.getIdentity();
-        isControlled = calabash.isControlled;
-    }
+
 
 
 
@@ -53,7 +44,6 @@ public class Calabash extends Creature{
                 if(bestMove == null)
                     continue;
                 if ("move".equals(bestMove.action)) {
-                    world.removeCreature(this.getX(),this.getY());
                     this.moveTo(bestMove.creature.getPosition().getX(),bestMove.creature.getPosition().getY());
                     System.out.println("Calabash" + this.identity+" moveTo: "+ this.getX() +","+ this.getY());
                 }
@@ -71,9 +61,9 @@ public class Calabash extends Creature{
 
                 try {
                     if(world.get(this.getX(),this.getY()).isrough)
-                            TimeUnit.SECONDS.sleep(2);
+                            TimeUnit.SECONDS.sleep(3);
                     else
-                        TimeUnit.SECONDS.sleep(1);
+                        TimeUnit.SECONDS.sleep(2);
                 }
                 catch (InterruptedException e) {
                     throw new RuntimeException(e);
@@ -83,13 +73,12 @@ public class Calabash extends Creature{
 
 
         }
+        this.world.removeCreature(getX(),getY());
+
 
     }
 
 
-    public boolean isControlled() {
-        return isControlled;
-    }
 
     public void setControlled(boolean controlled) {
         isControlled = controlled;

@@ -18,21 +18,11 @@ public class Monster extends Creature{
         health = 100;
         speed = 1;
         attack = 1;
-        vision = 2;
+        vision = 6;
         team = MONSTER;
         identity = i;
     }
 
-    public Monster(Monster monster) {
-        super(monster.getColor(), (char) 1, monster.getWorld());
-        health = monster.getHealth();
-        speed = monster.getSpeed();
-        attack = monster.getAttack();
-        vision = monster.getVision();
-        team = MONSTER;
-        identity = monster.getIdentity();
-
-    }
 
 
 
@@ -50,7 +40,7 @@ public class Monster extends Creature{
             if(bestMove == null)
                 continue;
             if ("move".equals(bestMove.action)) {
-                world.removeCreature(this.getX(),this.getY());
+                //world.removeCreature(this.getX(),this.getY());
                 this.moveTo(bestMove.creature.getPosition().getX(),bestMove.creature.getPosition().getY());
                 System.out.println("Monster" + this.identity+" moveTo: "+ this.getX() +","+ this.getY());
             }
@@ -79,6 +69,7 @@ public class Monster extends Creature{
 
 
         }
+        this.world.removeCreature(getX(),getY());
 
     }
 }

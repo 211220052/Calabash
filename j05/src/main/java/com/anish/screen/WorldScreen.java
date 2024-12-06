@@ -16,8 +16,8 @@ public class WorldScreen implements Screen {
 
 
     public WorldScreen() {
-
         System.out.println("Waiting for Battle");
+        World.getInstance().setCreatures();
         World.getInstance().startCreatures();
     }
 
@@ -97,7 +97,6 @@ public class WorldScreen implements Screen {
     private void move(Calabash calabash, int dx, int dy){
         if(World.getInstance().get(calabash.getX() + dx,calabash.getY() + dy).isCapable()){
             if(World.getInstance().get(calabash.getX() + dx,calabash.getY() + dy).isFree()){
-                World.getInstance().removeCreature(calabash.getX(),calabash.getY());
                 calabash.moveTo(calabash.getX() + dx,calabash.getY() + dy);
                 if(dy == -1)
                     System.out.println("GO UP");

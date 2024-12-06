@@ -7,8 +7,8 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class Creature extends Thing {
 
-    protected static final int CALABASH = 0;
-    protected static final int MONSTER = 1;
+    public static final int CALABASH = 0;
+    public static final int MONSTER = 1;
     // 添加一个锁对象来同步对生物体的攻击
     private final Lock attackLock = new ReentrantLock();
     private final Lock takeAttackLock = new ReentrantLock();
@@ -65,8 +65,10 @@ public class Creature extends Thing {
 
 
     public void moveTo(int xPos, int yPos) {
-        this.world.get(getX(), getY()).clearCreature();
+        int pxPos = getX(), pyPos = getY();
         this.world.putCreature(this, xPos, yPos);
+        //this.world.get(pxPos, pyPos).clearCreature();
+        this.world.removeCreature(pxPos, pyPos);
     }
 
 
@@ -81,13 +83,7 @@ public class Creature extends Thing {
     }
 
 
-    protected void makeDecision() {
-        // 这里可以调用Minimax算法或其他决策算法来决定移动或攻击
-        // Minimax算法示例:
-        // Position bestMove = minimax(position, depth, true);
-        // moveCreature(bestMove);
-        // 或者进行攻击等行为
-    }
+
 
     // Minimax算法实现...
     private Node minimax() {
@@ -187,6 +183,9 @@ public class Creature extends Thing {
         return ifUseSkill;
     }
 
+    public boolean isControlled(){
+        return isControlled;
+    }
 
 
 }

@@ -7,8 +7,10 @@ import com.anish.world.World;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class Minimax {
+    private static final Random random = new Random();
     private static final int CALABASH = 0;
     private static final int MONSTER = 1;
     public static MinMaxResult minimax(Creature creature, int depth, boolean maximizingPlayer, int attackTimes, int team) {
@@ -33,6 +35,12 @@ public class Minimax {
                     maxEval = result.eval;
                     tempMove = moves.get(i);
                 }
+                else if (result.eval == maxEval) {
+                    // 当 result.eval == maxEval 时，随机选择是否更新 tempMove
+                    if (random.nextBoolean()) {
+                        tempMove = moves.get(i);
+                    }
+                }
             }
             return new MinMaxResult(maxEval, tempMove);
         } else {
@@ -51,6 +59,12 @@ public class Minimax {
                     minEval = result.eval;
                     tempMove = moves.get(i);
                 }
+                else if (result.eval == minEval) {
+                    // 当 result.eval == minEval 时，随机选择是否更新 tempMove
+                    if (random.nextBoolean()) {
+                        tempMove = moves.get(i);
+                    }
+                }
             }
             return new MinMaxResult(minEval, tempMove);
         }
@@ -63,11 +77,10 @@ public class Minimax {
         if(World.getInstance().get(creature.getPosition().getX(),creature.getPosition().getY()).isRough())
             totalScore = totalScore - 10;
 
-        float center = (float) (World.getInstance().getDimension() + 1) / 2;
-        float deltaX = creature.getPosition().getX() - center;
-        float deltaY = creature.getPosition().getY() - center;
 
-        if(team == CALABASH){
+        float deltaX, deltaY;
+
+        /*if(team == CALABASH){
             for (int i = 0; i < World.getInstance().getMonsters().size(); i++) {
                 if(World.getInstance().getMonsters().get(i).ifAlive()) {
                     deltaX = creature.getPosition().getX() - World.getInstance().getMonsters().get(i).getX();
@@ -91,21 +104,7 @@ public class Minimax {
 
             }
 
-
-
-            if(creature.getHealth() > 30){
-                totalScore = totalScore - Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-            }
-            else{
-                for (int i = 0; i < World.getInstance().getCalabashes().size(); i++) {
-                    deltaX = creature.getPosition().getX() - World.getInstance().getCalabashes().get(i).getX();
-                    deltaY = creature.getPosition().getY() - World.getInstance().getCalabashes().get(i).getY();
-                    //计算距离
-                    totalScore = totalScore + Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-
-                }
-            }
-        }
+        }*/
 
         return totalScore;
     }

@@ -10,39 +10,22 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class World {
-
-    private static World instance = new World();;
+    private static World instance = new World();
     private final Lock putlock = new ReentrantLock();
     private final Lock removelock = new ReentrantLock();
-
-
     public static final int WIDTH = 62;
     public static final int HEIGHT = 62;
-
-
-
-
     private final int dimension;
     private Tile<Thing>[][] tiles;
-
-
     BattleFieldGenerator generator;
-
-
-
 
     private   List<Monster> monsters;
 
-
-
     private   List<Calabash> calabashes;
 
-
-    private int calabashControlled;
-
+    private final int calabashControlled;
 
     public World() {
-
         Scanner scanner = new Scanner(System.in);
         dimension = scanner.nextInt();
         generator = new BattleFieldGenerator(dimension);
@@ -56,22 +39,22 @@ public class World {
 
         putBuildings(dimension);
 
+        calabashControlled = scanner.nextInt();
+    }
+
+    public static World getInstance() {
+        assert instance != null;
+        return instance;
+    }
+
+    public void setCreatures(){
         this.setCalabashes();
         this.setMonsters();
 
-
-        calabashControlled = scanner.nextInt();
         calabashes.get(calabashControlled).setControlled(true);
 
         putCalabashes();
         putMonsters();
-
-
-    }
-
-
-    public static World getInstance() {
-        return instance;
     }
 
     public int getDimension() {
@@ -86,11 +69,11 @@ public class World {
     }
 
     public void startCreatures(){
-//        for (int i = 0; i < 7; i++)
-//            calabashes.get(i).start();
-//        for(int i=0;i<14; i++)
-//            monsters.get(i).start();
-        calabashes.get(0).start();
+        for (int i = 0; i < 7; i++)
+            calabashes.get(i).start();
+        for(int i=0;i<14; i++)
+            monsters.get(i).start();
+//          calabashes.get(0).start();
     }
     public void putBuildings(int dimension){
         for (int i = 0; i < dimension + 2; i++) {
@@ -180,41 +163,29 @@ public class World {
     }
 
     public void removeCreature(int x, int y) {
-        //removelock.lock();
-        try {
-            this.tiles[x][y].clearCreatureOnThing();
-
-        }
-        finally {
-            //removelock.lock();
-        }
-
+        this.tiles[x][y].clearCreatureOnThing();
     }
 
 
     public void setMonsters() {
         this.monsters = new ArrayList<>();
         for(int i=0;i<14;i++){
-            monsters.add(new Monster(AsciiPanel.powderBlue,this,i));
+            monsters.add(new Monster(AsciiPanel.powderBlue,getInstance(),i));
         }
     }
 
 
-
-
     // 其他方法
-
-
 
     public void setCalabashes() {
         this.calabashes = new ArrayList<>(Arrays.asList(
-                new Calabash(AsciiPanel.ONE, this, 0),
-                new Calabash(AsciiPanel.TWO, this, 1),
-                new Calabash(AsciiPanel.THREE, this, 2),
-                new Calabash(AsciiPanel.FOUR, this, 3),
-                new Calabash(AsciiPanel.FIVE, this, 4),
-                new Calabash(AsciiPanel.SIX, this, 5),
-                new Calabash(AsciiPanel.SEVEN, this, 6))) ;
+                new Calabash(AsciiPanel.ONE, getInstance(), 0),
+                new Calabash(AsciiPanel.TWO, getInstance(), 1),
+                new Calabash(AsciiPanel.THREE, getInstance(), 2),
+                new Calabash(AsciiPanel.FOUR, getInstance(), 3),
+                new Calabash(AsciiPanel.FIVE, getInstance(), 4),
+                new Calabash(AsciiPanel.SIX, getInstance(), 5),
+                new Calabash(AsciiPanel.SEVEN, getInstance(), 6))) ;
     }
 
 
