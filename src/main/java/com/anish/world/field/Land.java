@@ -9,7 +9,7 @@ public class Land extends Thing {
     public Land(World world) {
         super(AsciiPanel.green, (char)177, world);
         this.capable = true;
-        this.isrough = false;
+        this.isRough = false;
     }
 
 

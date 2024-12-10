@@ -31,13 +31,13 @@ public class WorldScreen extends JPanel implements Screen {
             for (int y = 0; y < BattleFieldGenerator.getDimension() + 2; y++) {
                 Thing thing = World.getInstance().get(x, y);
                 if(thing != null){
-                    terminal.write(World.getInstance().get(x, y).getGlyph(), x, y, World.getInstance().get(x, y).getColor());
-                    if(World.getInstance().get(x, y).isCapable() && !World.getInstance().get(x, y).isFree()){
-                        if(World.getInstance().get(x, y).getCreature().ifAlive()){
-                            terminal.write(World.getInstance().get(x, y).getCreature().getGlyph(), x, y, World.getInstance().get(x, y).getCreature().getColor());
-                            if(World.getInstance().get(x, y).getCreature().ifUseSkill()){
+                    terminal.write(thing.getGlyph(), x, y, thing.getColor());
+                    if(thing.isCapable() && !thing.isFree()){
+                        if(thing.getCreature().ifAlive()){
+                            terminal.write(thing.getCreature().getGlyph(), x, y, thing.getCreature().getColor());
+                            if(thing.getCreature().ifUseSkill()){
                                 //playUp(terminal,x,y);
-                                World.getInstance().get(x, y).getCreature().useSkill(false);
+                                thing.getCreature().useSkill(false);
                             }
                         }
                         else{

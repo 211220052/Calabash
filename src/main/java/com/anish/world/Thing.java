@@ -3,29 +3,23 @@ package com.anish.world;
 import java.awt.Color;
 
 public class Thing extends Thread{
-    //public int RankofThing;
 
     protected World world;
-
+    private final Color color;
+    private final char glyph;
     public Tile<? extends Thing> tile;
-
     protected boolean capable;
-
-    protected boolean isrough;
-
+    protected boolean isRough;
     private Creature creature;
 
-    public int getX() {
-        if(this.tile == null){
-            System.out.println("this.tile == null");
-            return -1;
-        }
-        else{
-            return this.tile.getxPos();
-        }
-    }
 
+    public int getX() {
+        assert (tile!=null);
+        return this.tile.getxPos();
+
+    }
     public int getY() {
+        assert (tile!=null);
         return this.tile.getyPos();
     }
 
@@ -40,47 +34,27 @@ public class Thing extends Thread{
         this.creature = null;
     }
 
-    private final Color color;
 
     public Color getColor() {
         return this.color;
     }
-
-    private final char glyph;
-
     public char getGlyph() {
         return this.glyph;
     }
-
     public World getWorld() {
         return world;
     }
-
     public Creature getCreature() {
         return creature;
     }
-
     public synchronized void setCreature(Creature creature) {
-        if(capable){
-            this.creature = creature;
-        }
-        else{
-            System.out.println("it is not capable");
-        }
-
+        assert (this.capable);
+        this.creature = creature;
     }
-
     public void clearCreature() {
-        if(capable){
-            this.creature = null;
-        }
-        else{
-            System.out.println("it is not capable");
-        }
-
+        assert (this.capable);
+        this.creature = null;
     }
-
-
     public boolean isCapable() {
         return capable;
     }
@@ -88,7 +62,7 @@ public class Thing extends Thread{
         return this.creature == null;
     }
     public boolean isRough(){
-        return isrough;
+        return isRough;
     }
 
 }

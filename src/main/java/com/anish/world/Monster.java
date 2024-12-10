@@ -2,13 +2,10 @@ package com.anish.world;
 import com.anish.minimax.MinMaxResult;
 import com.anish.minimax.Minimax;
 import com.anish.minimax.Move;
-import maze.BattleFieldGenerator;
 
 import java.awt.Color;
-import java.util.List;
-import java.util.Random;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 public class Monster extends Creature{
 
@@ -18,7 +15,7 @@ public class Monster extends Creature{
         health = 100;
         speed = 1;
         attack = 1;
-        vision = 6;
+        vision = 4;
         team = MONSTER;
         identity = i;
     }
@@ -30,17 +27,11 @@ public class Monster extends Creature{
     @Override
     public void run() {
         while (this.ifAlive() && !Thread.currentThread().isInterrupted()) {
-            // 生成所有可能的移动
-            //List<Move> moves = Minimax.generateMoves(this, MONSTER);
-            // 使用Minimax算法找到最佳移动
             MinMaxResult minMaxResult = Minimax.minimax(this, this.vision, true, 0, MONSTER);
-            // 获取最佳移动
             Move bestMove = minMaxResult.move;
-            // 应用最佳移动
             if(bestMove == null)
                 continue;
             if ("move".equals(bestMove.action)) {
-                //world.removeCreature(this.getX(),this.getY());
                 this.moveTo(bestMove.creature.getPosition().getX(),bestMove.creature.getPosition().getY());
                 System.out.println("Monster" + this.identity+" moveTo: "+ this.getX() +","+ this.getY());
             }
@@ -57,13 +48,14 @@ public class Monster extends Creature{
             }
 
             try {
-                if(world.get(this.getX(),this.getY()).isrough)
-                    TimeUnit.SECONDS.sleep(2);
+                if(world.get(this.getX(),this.getY()).isRough)
+                    TimeUnit.SECONDS.sleep(3);
                 else
-                    TimeUnit.SECONDS.sleep(1);
+                    TimeUnit.SECONDS.sleep(2);
             }
             catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                System.out.println("Monster" + this.identity + " was interrupted");
             }
 
 
@@ -71,6 +63,11 @@ public class Monster extends Creature{
         }
         this.world.removeCreature(getX(),getY());
 
+    }
+
+    public void ssuspend() {
+        LockSupport.park(); // 挂起当前线程
+        System.out.println("Monster" + this.identity + " was Suspended");
     }
 }
 

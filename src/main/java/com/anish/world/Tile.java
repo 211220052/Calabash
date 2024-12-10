@@ -5,11 +5,9 @@ public class Tile<T extends Thing> {
     protected T thing;
     protected int xPos;
     protected int yPos;
-
     public T getThing() {
         return thing;
     }
-
     public void setThing(T thing) {
         this.thing = thing;
         this.thing.setTile(this);

@@ -9,7 +9,7 @@ public class River extends Thing {
     public River(World world) {
         super(AsciiPanel.brightBlue,(char)247  , world);
         this.capable = true;
-        this.isrough = true;
+        this.isRough = true;
     }
 
 

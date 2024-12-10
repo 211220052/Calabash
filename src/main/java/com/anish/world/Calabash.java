@@ -4,11 +4,8 @@ import com.anish.minimax.Minimax;
 import com.anish.minimax.Move;
 
 import java.awt.Color;
-import java.util.List;
-import java.util.Random;
-import java.util.Scanner;
-import java.util.concurrent.BrokenBarrierException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.LockSupport;
 
 public class Calabash extends Creature{
 
@@ -18,22 +15,15 @@ public class Calabash extends Creature{
         health = 1000;
         speed = 2;
         attack = 50;
-        vision = 8;
+        vision = 3;
         team = CALABASH;
         identity = i;
         isControlled = false;
     }
-
-
-
-
-
-
+    
     @Override
     public void run() {
-        Scanner scanner;
         while (this.ifAlive() && !Thread.currentThread().isInterrupted()) {
-
             if(!isControlled){
                 // 生成所有可能的移动
                 //List<Move> moves = Minimax.generateMoves(this, CALABASH);
@@ -60,15 +50,20 @@ public class Calabash extends Creature{
                     }
                 }
 
+
                 try {
-                    if(world.get(this.getX(),this.getY()).isrough)
+                    if(world.get(this.getX(),this.getY()).isRough)
                             TimeUnit.SECONDS.sleep(3);
                     else
                         TimeUnit.SECONDS.sleep(2);
                 }
                 catch (InterruptedException e) {
-                    throw new RuntimeException(e);
+                    // 恢复中断状态
+                    Thread.currentThread().interrupt();
+                    // 处理中断逻辑
+                    System.out.println("Calabash" + this.identity + " was interrupted");
                 }
+
 
             }
 
@@ -83,5 +78,10 @@ public class Calabash extends Creature{
 
     public void setControlled(boolean controlled) {
         isControlled = controlled;
+    }
+
+    public void ssuspend() {
+        LockSupport.park(); // 挂起当前线程
+        System.out.println("Calabash" + this.identity + " was Suspended");
     }
 }

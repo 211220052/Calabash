@@ -9,7 +9,7 @@ public class Mountain extends Thing {
     public Mountain(World world) {
         super(AsciiPanel.brightBlack, (char)30, world);
         this.capable = true;
-        this.isrough = true;
+        this.isRough = true;
     }
 
 }

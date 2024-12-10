@@ -7,6 +7,7 @@ import maze.BattleFieldGenerator;
 import java.util.*;
 import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class World {
@@ -181,6 +182,30 @@ public class World {
         for(int i=0;i<14; i++)
             monsters.get(i).start();
         //calabashes.get(0).start();
+    }
+
+    public void suspendCreatures(){
+        for (int i = 0; i < 7; i++)
+            calabashes.get(i).ssuspend();
+        for(int i=0;i<14; i++)
+            monsters.get(i).ssuspend();
+        //calabashes.get(0).start();
+    }
+    public void continueCreatures(){
+        for (int i = 0; i < 7; i++)
+            LockSupport.unpark(calabashes.get(i));
+        for(int i=0;i<14; i++)
+            LockSupport.unpark(monsters.get(i));
+        //calabashes.get(0).start();
+    }
+
+
+    public void stopCreatures(){
+        for (int i = 0; i < 7; i++)
+            calabashes.get(i).interrupt();
+        for(int i=0;i<14; i++)
+            monsters.get(i).interrupt();
+
     }
 
 
