@@ -56,7 +56,7 @@ public class World {
         }
         // [0 , dimension-1] --> [0 , dimension + 1]
 
-        putBuildings(dimension);
+        putBuildings();
 
     }
     public World(int dimension, int calabashControlled) {
@@ -70,7 +70,7 @@ public class World {
             tiles = new Tile[dimension + 2][dimension + 2];
         }
         // [0 , dimension-1] --> [0 , dimension + 1]
-        putBuildings(dimension);
+        putBuildings();
     }
 
     public static World getInstance() {
@@ -95,7 +95,7 @@ public class World {
     public boolean isCreatureFree(int x, int y) {
         return this.tiles[x][y].getThing().isFree();
     }
-    public void putBuildings(int dimension){
+    public void putBuildings(){
         for (int i = 0; i < dimension + 2; i++) {
             for (int j = 0; j < dimension + 2; j++) {
                 tiles[i][j] = new Tile<>(i, j);
@@ -197,13 +197,13 @@ public class World {
         //calabashes.get(0).start();
     }
 
-    public void suspendCreatures(){
+    /*public void suspendCreatures(){
         for (int i = 0; i < 7; i++)
             calabashes.get(i).ssuspend();
         for(int i=0;i<14; i++)
             monsters.get(i).ssuspend();
         //calabashes.get(0).start();
-    }
+    }*/
     public void continueCreatures(){
         for (int i = 0; i < 7; i++)
             LockSupport.unpark(calabashes.get(i));

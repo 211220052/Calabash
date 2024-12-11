@@ -80,8 +80,8 @@ public class Calabash extends Creature{
         isControlled = controlled;
     }
 
-    public void ssuspend() {
+    /*public void ssuspend() {
         LockSupport.park(); // 挂起当前线程
         System.out.println("Calabash" + this.identity + " was Suspended");
-    }
+    }*/
 }

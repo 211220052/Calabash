@@ -65,9 +65,9 @@ public class Monster extends Creature{
 
     }
 
-    public void ssuspend() {
+    /*public void ssuspend() {
         LockSupport.park(); // 挂起当前线程
         System.out.println("Monster" + this.identity + " was Suspended");
-    }
+    }*/
 }
 

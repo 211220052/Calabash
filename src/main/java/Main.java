@@ -304,7 +304,7 @@ public class Main extends JFrame implements KeyListener {
             }
             BattleFieldGenerator.battleField = map;
             BattleFieldGenerator.setDimension(map.length);
-            World.getInstance().putBuildings(BattleFieldGenerator.getDimension());
+            World.getInstance().putBuildings();
         }
     }
 

@@ -9,23 +9,19 @@ import java.util.List;
 
 import java.awt.Color;
 public class GameSnapshot {
-
-
-    // 保存每个位置的绘画状态
     private final List<GlyphColorPair> tileGlyphs = new ArrayList<>();
     private final List<GlyphColorPair> creatureGlyphs = new ArrayList<>();
-
 
     public GameSnapshot(World world){
         for (int x = 0; x < BattleFieldGenerator.getDimension() + 2; x++) {
             for (int y = 0; y < BattleFieldGenerator.getDimension() + 2; y++) {
                 Thing thing = world.get(x, y);
                 if (thing != null) {
-                    // 保存 Thing 的绘制信息
+                    // 保存 Thing 的信息
                     tileGlyphs.add(new GlyphColorPair(thing.getGlyph(), thing.getColor(), x, y));
                     if (thing.isCapable() && !thing.isFree()) {
                         if (thing.getCreature().ifAlive()) {
-                            // 保存 Creature 的绘制信息
+                            // 保存 Creature 的信息
                             creatureGlyphs.add(new GlyphColorPair(thing.getCreature().getGlyph(), thing.getCreature().getColor(), x, y));
                         }
                     }
@@ -34,11 +30,10 @@ public class GameSnapshot {
         }
     }
 
-    // 获取保存的绘制信息
+    // 获取保存的信息
     public List<GlyphColorPair> getTileGlyphs() {
         return tileGlyphs;
     }
-
     public List<GlyphColorPair> getCreatureGlyphs() {
         return creatureGlyphs;
     }

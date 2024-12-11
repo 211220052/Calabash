@@ -19,13 +19,7 @@ public class Creature extends Thing {
     protected int team;
     protected int identity;
     protected boolean isControlled;
-
-
-
     protected boolean ifUseSkill;
-
-
-
     protected Position position;
 
 
@@ -33,11 +27,10 @@ public class Creature extends Thing {
         super(color, glyph, world);
         isControlled = false;
         ifUseSkill = false;
-
     }
 
     public Creature(Creature creature) {
-        super(creature.getColor(), (char) 2, creature.getWorld());
+        super(creature.getColor(), (char) 0, creature.getWorld());
         health = creature.getHealth();
         speed = creature.getSpeed();
         attack = creature.getAttack();
@@ -45,12 +38,10 @@ public class Creature extends Thing {
         team = creature.getTeam();
         identity = creature.getIdentity();
         isControlled = creature.isControlled;
-
-
     }
 
     public Creature(Creature creature, int x, int y) {
-        super(creature.getColor(), (char) 2, creature.getWorld());
+        super(creature.getColor(), (char) 0, creature.getWorld());
         health = creature.getHealth();
         speed = creature.getSpeed();
         attack = creature.getAttack();
@@ -59,29 +50,22 @@ public class Creature extends Thing {
         identity = creature.getIdentity();
         isControlled = creature.isControlled;
         position = new Position(x,y);
-
-
     }
 
 
     public void moveTo(int xPos, int yPos) {
         int pxPos = getX(), pyPos = getY();
         this.world.putCreature(this, xPos, yPos);
-        //this.world.get(pxPos, pyPos).clearCreature();
         this.world.removeCreature(pxPos, pyPos);
     }
-
-
 
     public  void useSkill(boolean ifUse){
         ifUseSkill = ifUse;
     }
 
-
     public  void run(){
 
     }
-
     // 攻击生物体
     public void attackCreature(Creature target) {
         attackLock.lock();

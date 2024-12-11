@@ -27,7 +27,7 @@ public class Thing extends Thread{
         this.tile = tile;
     }
 
-    protected Thing(Color color, char glyph, World world) {
+    public Thing(Color color, char glyph, World world) {
         this.color = color;
         this.glyph = glyph;
         this.world = world;
