@@ -20,10 +20,6 @@ public class BattleFieldGenerator {
     private static final int LOW_GROUND = 4;
     private static final int RIVER = 5;
 
-    public int[][] cloneBattleField() {
-        return battleField;
-    }
-
     public static int getDimension() {
         return dimension;
     }

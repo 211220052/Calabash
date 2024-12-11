@@ -11,7 +11,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class World {
-    private static World instance = new World();
+    private static final World instance = new World(30,0);
     private final Lock putlock = new ReentrantLock();
     private final Lock removelock = new ReentrantLock();
     public static final int WIDTH = 62;
@@ -49,8 +49,8 @@ public class World {
 
         generator = new BattleFieldGenerator(dimension);
         generator.generate();
-        System.out.println(generator.getSymbolicBattleField());
-        System.out.println(generator.getRawBattleField());
+        //System.out.println(generator.getSymbolicBattleField());
+        //System.out.println(generator.getRawBattleField());
         if (tiles == null) {
             tiles = new Tile[dimension + 2][dimension + 2];
         }
@@ -58,6 +58,19 @@ public class World {
 
         putBuildings(dimension);
 
+    }
+    public World(int dimension, int calabashControlled) {
+        this.dimension = dimension;
+        this.calabashControlled = calabashControlled;
+        generator = new BattleFieldGenerator(dimension);
+        generator.generate();
+        //System.out.println(generator.getSymbolicBattleField());
+        //System.out.println(generator.getRawBattleField());
+        if (tiles == null) {
+            tiles = new Tile[dimension + 2][dimension + 2];
+        }
+        // [0 , dimension-1] --> [0 , dimension + 1]
+        putBuildings(dimension);
     }
 
     public static World getInstance() {
@@ -115,10 +128,10 @@ public class World {
 
     }
 
-    public void putCreature(Creature t, int x, int y) {
+    public void putCreature(Creature creature, int x, int y) {
         putlock.lock();
         try {
-            this.tiles[x][y].setCreatureOnThing(t);
+            this.tiles[x][y].setCreatureOnThing(creature);
 
         }
         finally {

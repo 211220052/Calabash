@@ -11,10 +11,11 @@ public class CalabashTest {
 
     private Calabash calabash;
 
+
     @Before
     public void setUp() {
         // 创建一个 Calabash 对象进行测试
-        World world = new World();
+        World world = new World(30,0);
         calabash = new Calabash(Color.RED, world, 1);
     }
 
@@ -25,7 +26,7 @@ public class CalabashTest {
         assertEquals(1000, calabash.getHealth());
         assertEquals(2, calabash.getSpeed());
         assertEquals(50, calabash.getAttack());
-        assertEquals(4, calabash.getVision());
+        assertEquals(3, calabash.getVision());
         assertEquals(Calabash.CALABASH, calabash.getTeam());
         assertEquals(1, calabash.getIdentity());
         assertFalse(calabash.isControlled());
@@ -39,12 +40,12 @@ public class CalabashTest {
 //        // 你可以根据需要添加更多的测试方法来测试 run 方法中的不同路径
 //    }
 
-//    @Test
-//    public void testSetControlled() {
-//        // 测试 setControlled 方法是否按预期工作
-//        calabash.setControlled(true);
-//        assertTrue(calabash.isControlled());
-//    }
+    @Test
+    public void testSetControlled() {
+        // 测试 setControlled 方法是否按预期工作
+        calabash.setControlled(true);
+        assertTrue(calabash.isControlled());
+    }
 
     // 你可以添加更多的测试方法来测试 Calabash 类的其他方法
 }
