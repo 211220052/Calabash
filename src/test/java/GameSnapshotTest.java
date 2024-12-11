@@ -4,6 +4,7 @@ import maze.BattleFieldGenerator;
 import org.junit.Before;
 import org.junit.Test;
 import utils.GameSnapshot;
+import utils.GlyphColorPair;
 
 import static org.junit.Assert.*;
 
@@ -19,8 +20,9 @@ public class GameSnapshotTest {
     @Before
     public void setUp() {
         // 创建一个模拟的World对象
-        world = new World(); // 假设World类有一个无参构造函数
+        world = new World(30,0); // 假设World类有一个无参构造函数
         generator = new BattleFieldGenerator(30);
+        generator.generate();
         world.putBuildings();
         // 创建GameSnapshot对象
         gameSnapshot = new GameSnapshot(world);
@@ -28,9 +30,10 @@ public class GameSnapshotTest {
 
     @Test
     public void testGameSnapshotCreation() {
-        // 验证tileGlyphs是否包含正确数量的元素
+
         assertEquals((BattleFieldGenerator.getDimension() + 2) * (BattleFieldGenerator.getDimension() + 2), gameSnapshot.getTileGlyphs().size());
-        // 验证creatureGlyphs是否为空，因为没有生物体被创建
+
+        assertFalse(gameSnapshot.getTileGlyphs().isEmpty());
         assertTrue(gameSnapshot.getCreatureGlyphs().isEmpty());
     }
 
@@ -50,33 +53,4 @@ public class GameSnapshotTest {
     }
 }
 
-// 假设的GlyphColorPair类，用于测试
-class GlyphColorPair {
-    private char glyph;
-    private Color color;
-    private int x;
-    private int y;
 
-    public GlyphColorPair(char glyph, Color color, int x, int y) {
-        this.glyph = glyph;
-        this.color = color;
-        this.x = x;
-        this.y = y;
-    }
-
-    public char getGlyph() {
-        return glyph;
-    }
-
-    public Color getColor() {
-        return color;
-    }
-
-    public int getX() {
-        return x;
-    }
-
-    public int getY() {
-        return y;
-    }
-}
