@@ -11,7 +11,7 @@ import java.util.concurrent.locks.LockSupport;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class World {
-    private static final World instance = new World(30,0);
+    private static final World instance = new World();
     private final Lock putlock = new ReentrantLock();
     private final Lock removelock = new ReentrantLock();
     public static final int WIDTH = 62;
@@ -26,7 +26,7 @@ public class World {
 
     private int calabashControlled;
 
-    public World() {
+    private World() {
 
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();

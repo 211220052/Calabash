@@ -53,7 +53,7 @@ public class Main extends JFrame implements KeyListener {
         setLocationRelativeTo(null);
 
         initButton();
-        // 确保terminal获取焦点
+
         requestFocusInWindow();
         setFocusable(true);
 
