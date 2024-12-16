@@ -25,11 +25,13 @@ public class WorldScreen extends JPanel implements Screen {
         System.out.println("Waiting for Battle");
 
     }
+
     @Override
-    public void displayOutput(AsciiPanel terminal){
+    public void displayOutput(AsciiPanel terminal, boolean flag){
+        assert flag;
         for (int x = 0; x < BattleFieldGenerator.getDimension() + 2; x++) {
             for (int y = 0; y < BattleFieldGenerator.getDimension() + 2; y++) {
-                Thing thing = World.getInstance().get(x, y);
+                Thing thing = World.getDefualtInstance().get(x, y);
                 if(thing != null){
                     terminal.write(thing.getGlyph(), x, y, thing.getColor());
                     if(thing.isCapable() && !thing.isFree()){
@@ -55,85 +57,107 @@ public class WorldScreen extends JPanel implements Screen {
     }
 
 
-
-
-
     @Override
-    public Screen respondToUserInput(KeyEvent key) {
-        Calabash calabash = World.getInstance().getCalabashes().get(World.getInstance().getCalabashControlled());
-        switch (key.getKeyCode()) {
-            case KeyEvent.VK_SPACE:
+    public Screen respondToUserAInput(String str) {
+        Calabash calabash = World.getDefualtInstance().getCalabashes().get(World.getInstance().getCalabashControlled());
+        switch (str) {
+            case "attack":
                 attack(calabash);
                 break;
-            case KeyEvent.VK_UP:
+            case "up":
                 move(calabash,0,-1);
                 break;
-            case KeyEvent.VK_DOWN:
+            case "down":
                 move(calabash,0,1);
                 break;
-            case KeyEvent.VK_LEFT:
+            case "left":
                 move(calabash,-1,0);
                 break;
-            case KeyEvent.VK_RIGHT:
+            case "right":
                 move(calabash,1,0);
                 break;
         }
         return this;
     }
 
-    private void playUp(AsciiPanel terminal, int x, int y){
-        for (int dx = -1; dx <= 1; dx++) {
-            for (int dy = -1; dy <= 1; dy++) {
-                if (dx == 0 && dy == 0)
-                    continue;
-                int newX = x + dx;
-                int newY = y + dy;
-                terminal.write('~', newX, newY, World.getInstance().get(x, y).getCreature().getColor());
-            }
+    @Override
+    public Screen respondToUserBInput(String str) {
+        Monster monster = World.getDefualtInstance().getMonsters().get(World.getInstance().getMonsterControled());
+        switch (str) {
+            case "attack":
+                attack(monster);
+                break;
+            case "up":
+                move(monster,0,-1);
+                break;
+            case "down":
+                move(monster,0,1);
+                break;
+            case "left":
+                move(monster,-1,0);
+                break;
+            case "right":
+                move(monster,1,0);
+                break;
         }
+        return this;
     }
 
     private void attack(Calabash calabash){
-        for (int i = 0; i < World.getInstance().getMonsters().size(); i++) {
-            if(World.getInstance().getMonsters().get(i).ifAlive()) {
-                int deltaX = calabash.getX() - World.getInstance().getMonsters().get(i).getX();
-                int deltaY = calabash.getY() - World.getInstance().getMonsters().get(i).getY();
+        for (int i = 0; i < World.getDefualtInstance().getMonsters().size(); i++) {
+            Monster monster = World.getDefualtInstance().getMonsters().get(i);
+            if(monster.ifAlive()) {
+                int deltaX = calabash.getX() - monster.getX();
+                int deltaY = calabash.getY() - monster.getY();
                 //计算距离
                 if(Math.sqrt(deltaX * deltaX + deltaY * deltaY) < 3){
-                    World.getInstance().getMonsters().get(i).takeDamage(calabash);
-                    System.out.print("Calabash" + calabash.getIdentity()+" is attacking " + "Monster" + World.getInstance().getMonsters().get(i).getIdentity());
-                    System.out.println(" Monster" + World.getInstance().getMonsters().get(i).getIdentity() + "'s health:" + World.getInstance().getMonsters().get(i).getHealth());
+                    monster.takeDamage(calabash);
+                    System.out.print("Calabash" + calabash.getIdentity()+" is attacking " + "Monster" + monster.getIdentity());
+                    System.out.println(" Monster" + monster.getIdentity() + "'s health:" + monster.getHealth());
                     break;
                 }
-
             }
-
-
+        }
+    }
+    private void attack(Monster monster){
+        for (int i = 0; i < World.getDefualtInstance().getCalabashes().size(); i++) {
+            Calabash calabash = World.getDefualtInstance().getCalabashes().get(i);
+            if(calabash.ifAlive()) {
+                int deltaX = monster.getX() - calabash.getX();
+                int deltaY = monster.getY() - calabash.getY();
+                //计算距离
+                if(Math.sqrt(deltaX * deltaX + deltaY * deltaY) < 3){
+                    calabash.takeDamage(monster);
+                    System.out.print("Monster" + monster.getIdentity()+" is attacking " + "Calabash" + calabash.getIdentity());
+                    System.out.println(" Monster" + calabash.getIdentity() + "'s health:" + calabash.getHealth());
+                    break;
+                }
+            }
         }
     }
 
     private void move(Calabash calabash, int dx, int dy){
-        if(World.getInstance().get(calabash.getX() + dx,calabash.getY() + dy).isCapable()){
-            if(World.getInstance().get(calabash.getX() + dx,calabash.getY() + dy).isFree()){
+        Thing thing = World.getDefualtInstance().get(calabash.getX() + dx,calabash.getY() + dy);
+        if(thing.isCapable()){
+            if(thing.isFree())
                 calabash.moveTo(calabash.getX() + dx,calabash.getY() + dy);
-                if(dy == -1)
-                    System.out.println("GO UP");
-                else if(dy == 1)
-                    System.out.println("GO DOWN");
-                else if(dx == -1)
-                    System.out.println("GO LEFT");
-                else if(dx == 1)
-                    System.out.println("GO RIGHT");
-
-            }
-            else{
+            else
                 System.out.println("Not Free!");
-            }
-
         }
-        else{
+        else
             System.out.println("Touching the wall!");
+    }
+
+    private void move(Monster monster, int dx, int dy){
+        Thing thing = World.getDefualtInstance().get(monster.getX() + dx,monster.getY() + dy);
+        if(thing.isCapable()){
+            if(thing.isFree())
+                monster.moveTo(monster.getX() + dx,monster.getY() + dy);
+            else
+                System.out.println("Not Free!");
         }
+        else
+            System.out.println("Touching the wall!");
     }
 
 

@@ -1,4 +1,18 @@
+import asciiPanel.AsciiFont;
+import asciiPanel.AsciiPanel;
+import com.anish.screen.Screen;
+import com.anish.screen.WorldScreen;
+import com.anish.world.Thing;
+import com.anish.world.World;
+import maze.BattleFieldGenerator;
+import utils.GamePlaybacker;
+import utils.GameRecorder;
+import utils.GameSnapshot;
+
+import javax.swing.*;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
@@ -7,28 +21,34 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
-public class EchoNIOServer {
+public class IntegratedEchoServer {
+
+    private final AsciiPanel terminal;
+    private Screen screen;
     private Selector selector;
     private InetSocketAddress listenAddress;
     private final static int PORT = 9093;
-    private SocketChannel clientA;
-    private SocketChannel clientB;
+    private SocketChannel clientAChannel;
+    private SocketChannel clientBChannel;
 
-    public static void main(String[] args) throws Exception {
+    public IntegratedEchoServer(String address, int port) throws IOException {
+        listenAddress = new InetSocketAddress(address, port);
+        terminal = new AsciiPanel(62, 62, AsciiFont.CP437_16x16);
+        screen = new WorldScreen();
+
+    }
+
+    public static void main(String[] args) throws InterruptedException {
         try {
-            new EchoNIOServer("localhost", PORT).startServer();
+            new IntegratedEchoServer("localhost", PORT).startServer();
+
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    public EchoNIOServer(String address, int port) throws IOException {
-        listenAddress = new InetSocketAddress(address, port);
     }
 
     private void startServer() throws IOException {
@@ -57,7 +77,8 @@ public class EchoNIOServer {
 
                 if (key.isAcceptable()) {
                     this.accept(key);
-                } else if (key.isReadable()) {
+                }
+                else if (key.isReadable()) {
                     this.read(key);
                 }
             }
@@ -68,46 +89,69 @@ public class EchoNIOServer {
         ServerSocketChannel serverChannel = (ServerSocketChannel) key.channel();
         SocketChannel channel = serverChannel.accept();
         channel.configureBlocking(false);
+
         Socket socket = channel.socket();
         SocketAddress remoteAddr = socket.getRemoteSocketAddress();
         System.out.println("Connected to: " + remoteAddr);
 
-        if (clientA == null) {
-            clientA = channel;
-        } else if (clientB == null) {
-            clientB = channel;
+        if (clientAChannel == null) {
+            clientAChannel = channel;
+        } else if (clientBChannel == null) {
+            clientBChannel = channel;
         }
+
         channel.register(this.selector, SelectionKey.OP_READ);
+
+        if(clientAChannel != null && clientBChannel != null){
+            World.getDefualtInstance().startCreatures();
+        }
     }
 
     private void read(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
         int numRead = channel.read(buffer);
-
         if (numRead == -1) {
             Socket socket = channel.socket();
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             System.out.println("Connection closed by client: " + remoteAddr);
+
             channel.close();
             key.cancel();
-            if (clientA == channel) {
-                clientA = null;
-            } else if (clientB == channel) {
-                clientB = null;
+
+            if (clientAChannel == channel) {
+                clientAChannel = null;
+            } else if (clientBChannel == channel) {
+                clientBChannel = null;
             }
             return;
         }
 
         byte[] data = new byte[numRead];
         System.arraycopy(buffer.array(), 0, data, 0, numRead);
-        System.out.println("Got: " + new String(data));
+        //System.out.println("Got: " + new String(data));
+        String messageReceived = new String(data);
 
-        // Relay the message to the other client
-        if (channel == clientA && clientB != null) {
-            write(clientB, data);
-        } else if (channel == clientB && clientA != null) {
-            write(clientA, data);
+        String client = messageReceived.split(": ")[0];
+        String client_value = messageReceived.split(": ")[1];
+
+        if("Client-A".equals(client)){
+            screen = screen.respondToUserAInput(client_value);
+        }
+        else if ("Client-B".equals(client)) {
+            screen = screen.respondToUserBInput(client_value);
+        }
+
+        GameSnapshot snapshot = new GameSnapshot(World.getDefualtInstance());
+
+        byte[] dataReply = serialize(snapshot);
+
+
+        if (channel == clientAChannel && clientBChannel != null) {
+            write(clientBChannel, dataReply);
+            System.out.println("clientAChannel");
+        } else if (channel == clientBChannel && clientAChannel != null) {
+            write(clientAChannel, dataReply);
         }
     }
 
@@ -115,6 +159,15 @@ public class EchoNIOServer {
         ByteBuffer buffer = ByteBuffer.wrap(data);
         while (buffer.hasRemaining()) {
             channel.write(buffer);
+        }
+    }
+
+    public static byte[] serialize(GameSnapshot snapshot) throws IOException {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream();
+             ObjectOutputStream oos = new ObjectOutputStream(baos)) {
+            // 写入 GameSnapshot 对象
+            oos.writeObject(snapshot);
+            return baos.toByteArray();
         }
     }
 }

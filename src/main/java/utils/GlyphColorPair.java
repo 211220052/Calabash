@@ -1,8 +1,9 @@
 package utils;
 
 import java.awt.*;
+import java.io.Serializable;
 
-public class GlyphColorPair {
+public class GlyphColorPair implements Serializable {
 
 
     final char glyph;
