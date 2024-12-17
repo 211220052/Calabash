@@ -70,7 +70,6 @@ public class IntegratedEchoServer {
             while (iterator.hasNext()) {
                 SelectionKey key = iterator.next();
                 iterator.remove();
-
                 if (!key.isValid()) {
                     continue;
                 }
@@ -81,6 +80,13 @@ public class IntegratedEchoServer {
                 else if (key.isReadable()) {
                     this.read(key);
                 }
+            }
+            if(clientAChannel != null && clientBChannel != null){
+                GameSnapshot snapshot = new GameSnapshot(World.getInstance());
+                byte[] dataReply = serialize(snapshot);
+                write(clientBChannel, dataReply);
+                write(clientAChannel, dataReply);
+
             }
         }
     }
@@ -103,7 +109,7 @@ public class IntegratedEchoServer {
         channel.register(this.selector, SelectionKey.OP_READ);
 
         if(clientAChannel != null && clientBChannel != null){
-            World.getDefualtInstance().startCreatures();
+            World.getInstance().startCreatures();
         }
     }
 
@@ -142,7 +148,7 @@ public class IntegratedEchoServer {
             screen = screen.respondToUserBInput(client_value);
         }
 
-        GameSnapshot snapshot = new GameSnapshot(World.getDefualtInstance());
+        GameSnapshot snapshot = new GameSnapshot(World.getInstance());
 
         byte[] dataReply = serialize(snapshot);
 

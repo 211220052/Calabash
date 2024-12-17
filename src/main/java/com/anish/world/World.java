@@ -18,8 +18,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class World {
     private static final World instance = new World(30,0,0);
-
-    private static final World defualtInstance = new World(30,0,0,true);
     private final Lock putlock = new ReentrantLock();
     private final Lock removelock = new ReentrantLock();
     public static final int WIDTH = 62;
@@ -38,59 +36,9 @@ public class World {
 
     private int monsterControlled;
 
-    private World() {
 
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        if (input.trim().isEmpty()) {
-            dimension = 30;
-            calabashControlled = 0;
-            monsterControlled = 0;
-        }
-        else {
-            String[] parts = input.split("\\s+");
-            if (parts.length == 3) {
-                try {
-                    // 将分割后的字符串转换为整数
-                    dimension = Integer.parseInt(parts[0]);
-                    calabashControlled = Integer.parseInt(parts[1]);
-                    monsterControlled = Integer.parseInt(parts[2]);
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid input. Please enter a valid number.");
-                }
-            }
-        }
 
-        generator = new BattleFieldGenerator(dimension);
-        generator.generate();
-        //System.out.println(generator.getSymbolicBattleField());
-        //System.out.println(generator.getRawBattleField());
-        if (tiles == null) {
-            tiles = new Tile[dimension + 2][dimension + 2];
-        }
-        // [0 , dimension-1] --> [0 , dimension + 1]
-
-        putBuildings();
-
-    }
-    private World(int dimension, int calabashControlled, int monsterControled) {
-        this.dimension = dimension;
-        this.calabashControlled = calabashControlled;
-        this.monsterControlled = monsterControled;
-
-        generator = new BattleFieldGenerator(dimension);
-        generator.generate();
-        //System.out.println(generator.getSymbolicBattleField());
-        //System.out.println(generator.getRawBattleField());
-        if (tiles == null) {
-            tiles = new Tile[dimension + 2][dimension + 2];
-        }
-        // [0 , dimension-1] --> [0 , dimension + 1]
-        putBuildings();
-    }
-
-    private World(int dimension, int calabashControlled, int monsterControlled,boolean flag) {
-        assert flag;
+    private World(int dimension, int calabashControlled, int monsterControlled) {
         this.dimension = dimension;
         this.calabashControlled = calabashControlled;
         this.monsterControlled = monsterControlled;
@@ -134,18 +82,18 @@ public class World {
 
 
         calabashes = new ArrayList<>(Arrays.asList(
-                new Calabash(AsciiPanel.ONE, getInstance(), 0),
-                new Calabash(AsciiPanel.TWO, getInstance(), 1),
-                new Calabash(AsciiPanel.THREE, getInstance(), 2),
-                new Calabash(AsciiPanel.FOUR, getInstance(), 3),
-                new Calabash(AsciiPanel.FIVE, getInstance(), 4),
-                new Calabash(AsciiPanel.SIX, getInstance(), 5),
-                new Calabash(AsciiPanel.SEVEN, getInstance(), 6))) ;
+                new Calabash(AsciiPanel.ONE, this, 0),
+                new Calabash(AsciiPanel.TWO, this, 1),
+                new Calabash(AsciiPanel.THREE, this, 2),
+                new Calabash(AsciiPanel.FOUR, this, 3),
+                new Calabash(AsciiPanel.FIVE, this, 4),
+                new Calabash(AsciiPanel.SIX, this, 5),
+                new Calabash(AsciiPanel.SEVEN, this, 6))) ;
         calabashes.get(calabashControlled).setControlled(true);
 
         monsters = new ArrayList<>();
         for(int i=0;i<14;i++){
-            monsters.add(new Monster(AsciiPanel.powderBlue,getInstance(),i));
+            monsters.add(new Monster(AsciiPanel.powderBlue,this,i));
         }
         String inputPath2 = getPath("gameProgress.txt");
         // 写入文件
@@ -185,10 +133,7 @@ public class World {
         return instance;
     }
 
-    public static World getDefualtInstance() {
-        assert defualtInstance != null;
-        return defualtInstance;
-    }
+
 
 
 

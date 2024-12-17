@@ -27,11 +27,11 @@ public class WorldScreen extends JPanel implements Screen {
     }
 
     @Override
-    public void displayOutput(AsciiPanel terminal, boolean flag){
-        assert flag;
+    public void displayOutput(AsciiPanel terminal){
+
         for (int x = 0; x < BattleFieldGenerator.getDimension() + 2; x++) {
             for (int y = 0; y < BattleFieldGenerator.getDimension() + 2; y++) {
-                Thing thing = World.getDefualtInstance().get(x, y);
+                Thing thing = World.getInstance().get(x, y);
                 if(thing != null){
                     terminal.write(thing.getGlyph(), x, y, thing.getColor());
                     if(thing.isCapable() && !thing.isFree()){
@@ -59,7 +59,7 @@ public class WorldScreen extends JPanel implements Screen {
 
     @Override
     public Screen respondToUserAInput(String str) {
-        Calabash calabash = World.getDefualtInstance().getCalabashes().get(World.getInstance().getCalabashControlled());
+        Calabash calabash = World.getInstance().getCalabashes().get(World.getInstance().getCalabashControlled());
         switch (str) {
             case "attack":
                 attack(calabash);
@@ -82,7 +82,7 @@ public class WorldScreen extends JPanel implements Screen {
 
     @Override
     public Screen respondToUserBInput(String str) {
-        Monster monster = World.getDefualtInstance().getMonsters().get(World.getInstance().getMonsterControled());
+        Monster monster = World.getInstance().getMonsters().get(World.getInstance().getMonsterControled());
         switch (str) {
             case "attack":
                 attack(monster);
@@ -104,8 +104,8 @@ public class WorldScreen extends JPanel implements Screen {
     }
 
     private void attack(Calabash calabash){
-        for (int i = 0; i < World.getDefualtInstance().getMonsters().size(); i++) {
-            Monster monster = World.getDefualtInstance().getMonsters().get(i);
+        for (int i = 0; i < World.getInstance().getMonsters().size(); i++) {
+            Monster monster = World.getInstance().getMonsters().get(i);
             if(monster.ifAlive()) {
                 int deltaX = calabash.getX() - monster.getX();
                 int deltaY = calabash.getY() - monster.getY();
@@ -120,8 +120,8 @@ public class WorldScreen extends JPanel implements Screen {
         }
     }
     private void attack(Monster monster){
-        for (int i = 0; i < World.getDefualtInstance().getCalabashes().size(); i++) {
-            Calabash calabash = World.getDefualtInstance().getCalabashes().get(i);
+        for (int i = 0; i < World.getInstance().getCalabashes().size(); i++) {
+            Calabash calabash = World.getInstance().getCalabashes().get(i);
             if(calabash.ifAlive()) {
                 int deltaX = monster.getX() - calabash.getX();
                 int deltaY = monster.getY() - calabash.getY();
@@ -137,7 +137,7 @@ public class WorldScreen extends JPanel implements Screen {
     }
 
     private void move(Calabash calabash, int dx, int dy){
-        Thing thing = World.getDefualtInstance().get(calabash.getX() + dx,calabash.getY() + dy);
+        Thing thing = World.getInstance().get(calabash.getX() + dx,calabash.getY() + dy);
         if(thing.isCapable()){
             if(thing.isFree())
                 calabash.moveTo(calabash.getX() + dx,calabash.getY() + dy);
@@ -149,7 +149,7 @@ public class WorldScreen extends JPanel implements Screen {
     }
 
     private void move(Monster monster, int dx, int dy){
-        Thing thing = World.getDefualtInstance().get(monster.getX() + dx,monster.getY() + dy);
+        Thing thing = World.getInstance().get(monster.getX() + dx,monster.getY() + dy);
         if(thing.isCapable()){
             if(thing.isFree())
                 monster.moveTo(monster.getX() + dx,monster.getY() + dy);

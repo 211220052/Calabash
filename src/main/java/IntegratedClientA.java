@@ -13,8 +13,11 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.channels.SelectionKey;
+import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.TimeUnit;
+import java.util.Iterator;
 
 public class IntegratedClientA extends JFrame implements KeyListener {
 
@@ -53,71 +56,73 @@ public class IntegratedClientA extends JFrame implements KeyListener {
             clientA.setVisible(true);
 
             while (true){
-                //clientA.requestFocusInWindow();
-                //clientA.setFocusable(true);
-                //clientA.repaint();
                 TimeUnit.MICROSECONDS.sleep(500);
             }
         }
-//
+
         catch (InterruptedException e) {
             throw new RuntimeException(e);
         } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
 
 
     }
 
-    public void startClient() throws IOException {
+    public void startClient() throws IOException, ClassNotFoundException {
         InetSocketAddress hostAddress = new InetSocketAddress("localhost", 9093);
         client = SocketChannel.open(hostAddress);
         client.configureBlocking(false);
 
-        // Add key listener to the frame
+        Selector selector = Selector.open();
+        client.register(selector, SelectionKey.OP_READ);
 
+        while (true) {
+            // 选择事件
+            selector.select();
+            // 获取已选中的键的迭代器
+            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
 
-        // Start a thread to read messages from the server
-        new Thread(() -> {
-            ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
-            try {
-                while (client.isOpen()) {
-                    buffer.clear();
-                    int bytesRead = client.read(buffer);
-                    if (bytesRead > 0) {
-                        buffer.flip();
-                        byte[] data = new byte[bytesRead];
-                        buffer.get(data);
-                        GameSnapshot gameSnapshot = deserialize(data);
-                        
-                        for (GlyphColorPair tileGlyph : gameSnapshot.getTileGlyphs()) {
-                            terminal.write(tileGlyph.getGlyph(),tileGlyph.getX(),tileGlyph.getY(),tileGlyph.getColor());
-                            repaint();
-                        }
+            while (iterator.hasNext()) {
+                SelectionKey key = iterator.next();
 
-                        for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
-                            terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
-                            repaint();
-                        }
-                        
-                        
+                if (key.isReadable()) {
+                    // 读取数据
+                    SocketChannel channel = (SocketChannel) key.channel();
+                    ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
+                    int bytesRead = channel.read(buffer);
+                    if (bytesRead == -1) {
+                        break;
                     }
+                    buffer.flip();
+                    byte[] data = new byte[bytesRead];
+                    buffer.get(data);
+                    GameSnapshot gameSnapshot = deserialize(data);
+
+                    for (GlyphColorPair tileGlyph : gameSnapshot.getTileGlyphs()) {
+                        terminal.write(tileGlyph.getGlyph(),tileGlyph.getX(),tileGlyph.getY(),tileGlyph.getColor());
+                        repaint();
+                    }
+
+                    for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
+                        terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
+                        repaint();
+                    }
+                    buffer.clear();
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                throw new RuntimeException(e);
+
+                iterator.remove();
             }
-        }).start();
+        }
     }
 
     @Override
     public void repaint() {
         //terminal.clear();
-        screen.displayOutput(terminal,true);
+        screen.displayOutput(terminal);
         super.repaint();
-        requestFocusInWindow();
-        setFocusable(true);
     }
 
 

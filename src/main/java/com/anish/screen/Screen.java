@@ -8,7 +8,7 @@ import asciiPanel.AsciiPanel;
 
 public interface Screen {
 
-    public void displayOutput(AsciiPanel terminal, boolean flag);
+    public void displayOutput(AsciiPanel terminal);
 
     public Screen respondToUserAInput(String str);
 
