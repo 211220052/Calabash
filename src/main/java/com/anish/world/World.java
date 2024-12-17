@@ -43,7 +43,6 @@ public class World {
         this.calabashControlled = calabashControlled;
         this.monsterControlled = monsterControlled;
 
-
         String inputPath1 = getPath("battleField.txt");
         List<int[]> rows = new ArrayList<>();
         try (
@@ -79,50 +78,6 @@ public class World {
         }
 
         putBuildings();
-
-
-        calabashes = new ArrayList<>(Arrays.asList(
-                new Calabash(AsciiPanel.ONE, this, 0),
-                new Calabash(AsciiPanel.TWO, this, 1),
-                new Calabash(AsciiPanel.THREE, this, 2),
-                new Calabash(AsciiPanel.FOUR, this, 3),
-                new Calabash(AsciiPanel.FIVE, this, 4),
-                new Calabash(AsciiPanel.SIX, this, 5),
-                new Calabash(AsciiPanel.SEVEN, this, 6))) ;
-        calabashes.get(calabashControlled).setControlled(true);
-
-        monsters = new ArrayList<>();
-        for(int i=0;i<14;i++){
-            monsters.add(new Monster(AsciiPanel.powderBlue,this,i));
-        }
-        String inputPath2 = getPath("gameProgress.txt");
-        // 写入文件
-        try (BufferedReader reader = new BufferedReader(new FileReader(inputPath2))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] parts = line.split(",");
-                String type = parts[0];
-                int identity = Integer.parseInt(parts[1]);
-                int health = Integer.parseInt(parts[2]);
-                int x = Integer.parseInt(parts[3]);
-                int y = Integer.parseInt(parts[4]);
-                if ("Calabash".equals(type)) {
-                    Calabash calabash = calabashes.get(identity);
-                    calabash.setHealth(health);
-                    putCreature(calabash, x, y);
-                    //System.out.println(World.getInstance().getCalabashes().get(identity).getX());
-                } else if ("Monster".equals(type)) {
-                    Monster monster = monsters.get(identity);
-                    monster.setHealth(health);
-                    putCreature(monster, x, y);
-                }
-            }
-            System.out.println("Data has been loaded from " + inputPath2);
-        }catch (IOException ex) {
-            throw new RuntimeException(ex);
-        }
-
-
 
     }
 
@@ -208,8 +163,44 @@ public class World {
 
 
     public void setCreatures(){
-        addCreatures();
-        putCreatures();
+        calabashes = new ArrayList<>(Arrays.asList(
+                new Calabash(AsciiPanel.ONE, instance, 0),
+                new Calabash(AsciiPanel.TWO, instance, 1),
+                new Calabash(AsciiPanel.THREE, instance, 2),
+                new Calabash(AsciiPanel.FOUR, instance, 3),
+                new Calabash(AsciiPanel.FIVE, instance, 4),
+                new Calabash(AsciiPanel.SIX, instance, 5),
+                new Calabash(AsciiPanel.SEVEN, instance, 6))) ;
+        calabashes.get(calabashControlled).setControlled(true);
+
+        monsters = new ArrayList<>();
+        for(int i=0;i<14;i++){
+            monsters.add(new Monster(AsciiPanel.powderBlue,instance,i));
+        }
+        String inputPath2 = getPath("gameProgress.txt");
+        // 写入文件
+        try (BufferedReader reader = new BufferedReader(new FileReader(inputPath2))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                String type = parts[0];
+                int identity = Integer.parseInt(parts[1]);
+                int health = Integer.parseInt(parts[2]);
+                int x = Integer.parseInt(parts[3]);
+                int y = Integer.parseInt(parts[4]);
+                if ("Calabash".equals(type)) {
+                    Calabash calabash = calabashes.get(identity);
+                    calabash.setHealth(health);
+                    putCreature(calabash, x, y);
+                } else if ("Monster".equals(type)) {
+                    Monster monster = monsters.get(identity);
+                    monster.setHealth(health);
+                    putCreature(monster, x, y);
+                }
+            }
+        }catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
 

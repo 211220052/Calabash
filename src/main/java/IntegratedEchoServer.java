@@ -2,12 +2,15 @@ import asciiPanel.AsciiFont;
 import asciiPanel.AsciiPanel;
 import com.anish.screen.Screen;
 import com.anish.screen.WorldScreen;
+import com.anish.world.Calabash;
+import com.anish.world.Monster;
 import com.anish.world.Thing;
 import com.anish.world.World;
 import maze.BattleFieldGenerator;
 import utils.GamePlaybacker;
 import utils.GameRecorder;
 import utils.GameSnapshot;
+import utils.GlyphColorPair;
 
 import javax.swing.*;
 import java.io.ByteArrayOutputStream;
@@ -22,12 +25,11 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
+import java.util.Scanner;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 public class IntegratedEchoServer {
-
-    private final AsciiPanel terminal;
     private Screen screen;
     private Selector selector;
     private InetSocketAddress listenAddress;
@@ -37,8 +39,8 @@ public class IntegratedEchoServer {
 
     public IntegratedEchoServer(String address, int port) throws IOException {
         listenAddress = new InetSocketAddress(address, port);
-        terminal = new AsciiPanel(62, 62, AsciiFont.CP437_16x16);
         screen = new WorldScreen();
+        World.getInstance().setCreatures();
 
     }
 
@@ -73,11 +75,11 @@ public class IntegratedEchoServer {
                 if (!key.isValid()) {
                     continue;
                 }
-
                 if (key.isAcceptable()) {
                     this.accept(key);
                 }
                 else if (key.isReadable()) {
+                    System.out.println("key.isReadable() Server read");
                     this.read(key);
                 }
             }
@@ -109,6 +111,7 @@ public class IntegratedEchoServer {
         channel.register(this.selector, SelectionKey.OP_READ);
 
         if(clientAChannel != null && clientBChannel != null){
+            new Scanner(System.in).nextLine();
             World.getInstance().startCreatures();
         }
     }
@@ -150,7 +153,11 @@ public class IntegratedEchoServer {
 
         GameSnapshot snapshot = new GameSnapshot(World.getInstance());
 
+        for(GlyphColorPair pair: snapshot.getCreatureGlyphs()){
+            System.out.println(pair.getGlyph()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getColor().toString());
+        }
         byte[] dataReply = serialize(snapshot);
+        System.out.println("serialize(snapshot)");
 
 
         if (channel == clientAChannel && clientBChannel != null) {

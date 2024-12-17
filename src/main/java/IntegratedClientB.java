@@ -2,6 +2,7 @@ import asciiPanel.AsciiFont;
 import asciiPanel.AsciiPanel;
 import com.anish.screen.Screen;
 import com.anish.screen.WorldScreen;
+import com.anish.world.World;
 import utils.GameSnapshot;
 import utils.GlyphColorPair;
 
@@ -34,7 +35,7 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         add(terminal);
         pack();
         screen = new WorldScreen();
-
+        World.getInstance().setCreatures();
         addKeyListener(this);
         // 设置窗口位置居中
         setLocationRelativeTo(null);
@@ -51,10 +52,9 @@ public class IntegratedClientB extends JFrame implements KeyListener {
     public static void main(String[] args) {
         try {
             IntegratedClientB clientB = new IntegratedClientB("Client-B");
-            clientB.startClient();
             clientB.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
             clientB.setVisible(true);
-
+            clientB.startClient();
             while (true){
                 TimeUnit.MICROSECONDS.sleep(500);
             }
@@ -71,15 +71,20 @@ public class IntegratedClientB extends JFrame implements KeyListener {
 
     }
 
-    public void startClient() throws IOException, ClassNotFoundException {
+    public void startClient() throws IOException, ClassNotFoundException, InterruptedException {
+        /*InetSocketAddress hostAddress = new InetSocketAddress("localhost", 9093);
+        client = SocketChannel.open(hostAddress);
+        client.configureBlocking(false);*/
         InetSocketAddress hostAddress = new InetSocketAddress("localhost", 9093);
         client = SocketChannel.open(hostAddress);
         client.configureBlocking(false);
 
-        Selector selector = Selector.open();
-        client.register(selector, SelectionKey.OP_READ);
 
-        while (true) {
+
+        //Selector selector = Selector.open();
+        //client.register(selector, SelectionKey.OP_READ);
+
+        /*while (true) {
             // 选择事件
             selector.select();
             // 获取已选中的键的迭代器
@@ -115,7 +120,7 @@ public class IntegratedClientB extends JFrame implements KeyListener {
 
                 iterator.remove();
             }
-        }
+        }*/
     }
 
     @Override
@@ -159,10 +164,35 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         }
         if (message != null) {
             try {
-                ByteBuffer buffer = ByteBuffer.wrap((clientName + ": " + message).getBytes());
+
+                ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
+                buffer.put((clientName + ": " + message).getBytes());
+                buffer.flip();
                 client.write(buffer);
+                System.out.println("clientName:" +message);
+                buffer.clear();
+
+                int bytesRead = client.read(buffer);
+                while (bytesRead > 0) {
+                    buffer.flip();
+                    byte[] data = new byte[buffer.remaining()];
+                    buffer.get(data);
+                    GameSnapshot gameSnapshot = deserialize(data);
+                    for (GlyphColorPair tileGlyph : gameSnapshot.getTileGlyphs()) {
+                        terminal.write(tileGlyph.getGlyph(),tileGlyph.getX(),tileGlyph.getY(),tileGlyph.getColor());
+                    }
+                    for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
+                        terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
+                    }
+                    repaint();
+                    System.out.println("process data");
+                    buffer.clear();
+                }
+                //client.close();
             } catch (IOException ioException) {
                 ioException.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                throw new RuntimeException(ex);
             }
         }
         screen.respondToUserBInput(message);
