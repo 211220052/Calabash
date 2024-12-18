@@ -38,15 +38,12 @@ public class WorldScreen extends JPanel implements Screen {
                         if(thing.getCreature().ifAlive()){
                             terminal.write(thing.getCreature().getGlyph(), x, y, thing.getCreature().getColor());
                             if(thing.getCreature().ifUseSkill()){
-                                //playUp(terminal,x,y);
                                 thing.getCreature().useSkill(false);
                             }
                         }
                         else{
                             World.getInstance().removeCreature(x, y);
                         }
-
-
                     }
                 }else {
                     System.out.println("thing == null:"+ x + " " + y);

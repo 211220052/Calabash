@@ -41,13 +41,10 @@ public class IntegratedEchoServer {
         listenAddress = new InetSocketAddress(address, port);
         screen = new WorldScreen();
         World.getInstance().setCreatures();
-
     }
-
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
         try {
             new IntegratedEchoServer("localhost", PORT).startServer();
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -60,13 +57,11 @@ public class IntegratedEchoServer {
         serverChannel.socket().bind(listenAddress);
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         System.out.println("Server started on port >> " + PORT);
-
         while (true) {
             int readyCount = selector.select();
             if (readyCount == 0) {
                 continue;
             }
-
             Set<SelectionKey> readyKeys = selector.selectedKeys();
             Iterator<SelectionKey> iterator = readyKeys.iterator();
             while (iterator.hasNext()) {
@@ -79,7 +74,7 @@ public class IntegratedEchoServer {
                     this.accept(key);
                 }
                 else if (key.isReadable()) {
-                    System.out.println("key.isReadable() Server read");
+                    System.out.println("key.isReadable()");
                     this.read(key);
                 }
             }
@@ -110,24 +105,22 @@ public class IntegratedEchoServer {
 
         channel.register(this.selector, SelectionKey.OP_READ);
 
-        if(clientAChannel != null && clientBChannel != null){
-            new Scanner(System.in).nextLine();
-            World.getInstance().startCreatures();
-        }
+//        if(clientAChannel != null && clientBChannel != null){
+//            new Scanner(System.in).nextLine();
+//            World.getInstance().startCreatures();
+//        }
     }
 
     private void read(SelectionKey key) throws IOException {
         SocketChannel channel = (SocketChannel) key.channel();
-        ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
         int numRead = channel.read(buffer);
         if (numRead == -1) {
             Socket socket = channel.socket();
             SocketAddress remoteAddr = socket.getRemoteSocketAddress();
             System.out.println("Connection closed by client: " + remoteAddr);
-
             channel.close();
             key.cancel();
-
             if (clientAChannel == channel) {
                 clientAChannel = null;
             } else if (clientBChannel == channel) {
@@ -135,10 +128,9 @@ public class IntegratedEchoServer {
             }
             return;
         }
-
         byte[] data = new byte[numRead];
         System.arraycopy(buffer.array(), 0, data, 0, numRead);
-        //System.out.println("Got: " + new String(data));
+        System.out.println("Got: " + new String(data));
         String messageReceived = new String(data);
 
         String client = messageReceived.split(": ")[0];
@@ -153,18 +145,20 @@ public class IntegratedEchoServer {
 
         GameSnapshot snapshot = new GameSnapshot(World.getInstance());
 
-        for(GlyphColorPair pair: snapshot.getCreatureGlyphs()){
-            System.out.println(pair.getGlyph()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getColor().toString());
-        }
         byte[] dataReply = serialize(snapshot);
         System.out.println("serialize(snapshot)");
 
+        /*if (channel == clientAChannel){
+            write(clientAChannel, dataReply);
+            System.out.println("write(clientAChannel, dataReply)");
+        }*/
 
         if (channel == clientAChannel && clientBChannel != null) {
             write(clientBChannel, dataReply);
-            System.out.println("clientAChannel");
+            System.out.println("Reply clientA");
         } else if (channel == clientBChannel && clientAChannel != null) {
             write(clientAChannel, dataReply);
+            System.out.println("Reply clientB");
         }
     }
 

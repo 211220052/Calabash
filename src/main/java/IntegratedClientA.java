@@ -14,11 +14,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.concurrent.TimeUnit;
-import java.util.Iterator;
 
 public class IntegratedClientA extends JFrame implements KeyListener {
 
@@ -27,7 +28,9 @@ public class IntegratedClientA extends JFrame implements KeyListener {
     private SocketChannel client;
     private final String clientName;
 
-    public IntegratedClientA(String clientName) {
+    private final Queue<String> messageQueue; // 用于存储键盘事件的消息
+
+    public IntegratedClientA(String clientName) throws IOException {
         super();
         setTitle("ClientA");
         this.clientName = clientName;
@@ -40,13 +43,9 @@ public class IntegratedClientA extends JFrame implements KeyListener {
         addKeyListener(this);
         // 设置窗口位置居中
         setLocationRelativeTo(null);
-
-        requestFocusInWindow();
-        setFocusable(true);
-
-        terminal.clear();
-
         repaint();
+
+        messageQueue = new LinkedList<>();
 
     }
 
@@ -57,73 +56,66 @@ public class IntegratedClientA extends JFrame implements KeyListener {
             clientA.setVisible(true);
             clientA.startClient();
 
-            while (true){
-                TimeUnit.MICROSECONDS.sleep(500);
-            }
         }
-
-        catch (InterruptedException e) {
+        catch (IOException | ClassNotFoundException e) {
             throw new RuntimeException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (InterruptedException e) {
             throw new RuntimeException(e);
         }
 
 
     }
 
-    public void startClient() throws IOException, ClassNotFoundException {
-        //InetSocketAddress hostAddress = new InetSocketAddress("localhost", 9093);
-        //client = SocketChannel.open(hostAddress);
-        //client.configureBlocking(false);
-
+    public void startClient() throws IOException, ClassNotFoundException, InterruptedException {
         InetSocketAddress hostAddress = new InetSocketAddress("localhost", 9093);
         client = SocketChannel.open(hostAddress);
         client.configureBlocking(false);
-        //Selector selector = Selector.open();
-        //client.register(selector, SelectionKey.OP_READ);
 
-        /*while (true) {
-            // 选择事件
-            selector.select();
-            // 获取已选中的键的迭代器
-            Iterator<SelectionKey> iterator = selector.selectedKeys().iterator();
-
-            while (iterator.hasNext()) {
-                SelectionKey key = iterator.next();
-
-                if (key.isReadable()) {
-                    // 读取数据
-                    SocketChannel channel = (SocketChannel) key.channel();
-                    ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
-                    int bytesRead = channel.read(buffer);
-                    if (bytesRead == -1) {
-                        break;
-                    }
+        while (true){
+            while (!messageQueue.isEmpty()) {
+                String message = messageQueue.poll();
+                if (message != null) {
+                    ByteBuffer buffer = ByteBuffer.allocate(256);
+                    buffer.put((clientName + ": " + message).getBytes(StandardCharsets.UTF_8));
                     buffer.flip();
-                    byte[] data = new byte[bytesRead];
-                    buffer.get(data);
-                    GameSnapshot gameSnapshot = deserialize(data);
-
-                    for (GlyphColorPair tileGlyph : gameSnapshot.getTileGlyphs()) {
-                        terminal.write(tileGlyph.getGlyph(),tileGlyph.getX(),tileGlyph.getY(),tileGlyph.getColor());
-                        repaint();
-                    }
-
-                    for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
-                        terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
-                        repaint();
-                    }
+                    client.write(buffer);
+                    System.out.println(clientName + ": " + message);
                     buffer.clear();
+
+                }
+            }
+
+            ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
+            int bytesRead = client.read(buffer);
+            if (bytesRead == -1) {
+                client.close();
+                return;
+            }
+            if (bytesRead > 0) {
+                buffer.flip();
+                byte[] data = new byte[buffer.remaining()];
+                buffer.get(data);
+                System.out.println("Received message: ");
+
+                GameSnapshot gameSnapshot = deserialize(data);
+
+                for(GlyphColorPair pair: gameSnapshot.getCreatureGlyphs()){
+                    System.out.println(pair.getGlyph()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getColor().toString());
                 }
 
-                iterator.remove();
+                for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
+                    terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
+
+                }
+                repaint();
             }
+            TimeUnit.MILLISECONDS.sleep(50);
         }
 
-         */
+
+
     }
+
 
     @Override
     public void repaint() {
@@ -165,41 +157,10 @@ public class IntegratedClientA extends JFrame implements KeyListener {
                 break;
         }
         if (message != null) {
-            try {
-
-                ByteBuffer buffer = ByteBuffer.allocate(1024*1024);
-                buffer.put((clientName + ": " + message).getBytes());
-                buffer.flip();
-                client.write(buffer);
-                buffer.clear();
-
-                int bytesRead = client.read(buffer);
-                while (bytesRead > 0) {
-                    buffer.flip();
-                    byte[] data = new byte[buffer.remaining()];
-                    buffer.get(data);
-                    GameSnapshot gameSnapshot = deserialize(data);
-                    for (GlyphColorPair tileGlyph : gameSnapshot.getTileGlyphs()) {
-                        terminal.write(tileGlyph.getGlyph(),tileGlyph.getX(),tileGlyph.getY(),tileGlyph.getColor());
-                    }
-                    for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
-                        terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
-                    }
-                    repaint();
-                    System.out.println("process data");
-                    buffer.clear();
-                }
-                //client.close();
-
-
-            } catch (IOException ioException) {
-                ioException.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                throw new RuntimeException(ex);
-            }
+            messageQueue.add(message);
         }
         screen.respondToUserAInput(message);
-        repaint();
+        //repaint();
 
     }
 
