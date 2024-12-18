@@ -1,18 +1,8 @@
-import asciiPanel.AsciiFont;
-import asciiPanel.AsciiPanel;
 import com.anish.screen.Screen;
 import com.anish.screen.WorldScreen;
-import com.anish.world.Calabash;
-import com.anish.world.Monster;
-import com.anish.world.Thing;
 import com.anish.world.World;
-import maze.BattleFieldGenerator;
-import utils.GamePlaybacker;
-import utils.GameRecorder;
 import utils.GameSnapshot;
-import utils.GlyphColorPair;
 
-import javax.swing.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -25,9 +15,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
 import java.util.Iterator;
-import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.Scanner;
 
 public class IntegratedEchoServer {
     private Screen screen;
@@ -36,6 +25,8 @@ public class IntegratedEchoServer {
     private final static int PORT = 9093;
     private SocketChannel clientAChannel;
     private SocketChannel clientBChannel;
+
+    boolean ifplay = false;
 
     public IntegratedEchoServer(String address, int port) throws IOException {
         listenAddress = new InetSocketAddress(address, port);
@@ -58,6 +49,12 @@ public class IntegratedEchoServer {
         serverChannel.register(this.selector, SelectionKey.OP_ACCEPT);
         System.out.println("Server started on port >> " + PORT);
         while (true) {
+            if(!ifplay && clientAChannel != null && clientBChannel != null){
+                System.out.println("wait for game");
+                new Scanner(System.in).nextLine();
+                World.getInstance().startCreatures();
+                ifplay =true;
+            }
             int readyCount = selector.select();
             if (readyCount == 0) {
                 continue;
@@ -105,10 +102,6 @@ public class IntegratedEchoServer {
 
         channel.register(this.selector, SelectionKey.OP_READ);
 
-//        if(clientAChannel != null && clientBChannel != null){
-//            new Scanner(System.in).nextLine();
-//            World.getInstance().startCreatures();
-//        }
     }
 
     private void read(SelectionKey key) throws IOException {
@@ -148,16 +141,14 @@ public class IntegratedEchoServer {
         byte[] dataReply = serialize(snapshot);
         System.out.println("serialize(snapshot)");
 
-        /*if (channel == clientAChannel){
-            write(clientAChannel, dataReply);
-            System.out.println("write(clientAChannel, dataReply)");
-        }*/
 
         if (channel == clientAChannel && clientBChannel != null) {
+            write(clientAChannel, dataReply);
             write(clientBChannel, dataReply);
             System.out.println("Reply clientA");
         } else if (channel == clientBChannel && clientAChannel != null) {
             write(clientAChannel, dataReply);
+            write(clientBChannel, dataReply);
             System.out.println("Reply clientB");
         }
     }

@@ -25,8 +25,6 @@ public class Calabash extends Creature{
     public void run() {
         while (this.ifAlive() && !Thread.currentThread().isInterrupted()) {
             if(!isControlled){
-                // 生成所有可能的移动
-                //List<Move> moves = Minimax.generateMoves(this, CALABASH);
                 // 使用Minimax算法找到最佳移动
                 MinMaxResult minMaxResult = Minimax.minimax(this, this.vision, true, 0, CALABASH);
                 // 获取最佳移动

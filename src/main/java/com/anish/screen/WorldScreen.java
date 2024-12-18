@@ -31,6 +31,9 @@ public class WorldScreen extends JPanel implements Screen {
 
         for (int x = 0; x < BattleFieldGenerator.getDimension() + 2; x++) {
             for (int y = 0; y < BattleFieldGenerator.getDimension() + 2; y++) {
+                if(x == 14 && y == 19){
+                    System.out.println(" ");
+                }
                 Thing thing = World.getInstance().get(x, y);
                 if(thing != null){
                     terminal.write(thing.getGlyph(), x, y, thing.getColor());

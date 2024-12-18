@@ -4,7 +4,7 @@ import com.anish.screen.Screen;
 import com.anish.screen.WorldScreen;
 import com.anish.world.World;
 import utils.GameSnapshot;
-import utils.GlyphColorPair;
+import utils.TeamIdentityPair;
 
 import javax.swing.*;
 import java.awt.event.KeyEvent;
@@ -14,7 +14,6 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
@@ -27,6 +26,9 @@ public class IntegratedClientB extends JFrame implements KeyListener {
     private Screen screen;
     private SocketChannel client;
     private final String clientName;
+
+    public static final int CALABASH = 0;
+    public static final int MONSTER = 1;
 
     private final Queue<String> messageQueue; // 用于存储键盘事件的消息
 
@@ -72,6 +74,14 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         client.configureBlocking(false);
 
         while (true){
+            /*if(messageQueue.isEmpty()){
+                ByteBuffer buffer = ByteBuffer.allocate(64);
+                buffer.put((clientName + ": " + "defaultMessage").getBytes(StandardCharsets.UTF_8));
+                buffer.flip();
+                client.write(buffer);
+                System.out.println(clientName + ": " + "defaultMessage");
+                buffer.clear();
+            }*/
             while (!messageQueue.isEmpty()) {
                 String message = messageQueue.poll();
                 if (message != null) {
@@ -95,19 +105,24 @@ public class IntegratedClientB extends JFrame implements KeyListener {
                 buffer.flip();
                 byte[] data = new byte[buffer.remaining()];
                 buffer.get(data);
-                String message = new String(data, StandardCharsets.UTF_8);
-
                 System.out.println("Received message: ");
-
 
                 GameSnapshot gameSnapshot = deserialize(data);
 
-                for(GlyphColorPair pair: gameSnapshot.getCreatureGlyphs()){
-                    System.out.println(pair.getGlyph()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getColor().toString());
+                for(TeamIdentityPair pair: gameSnapshot.getCreatures()){
+                    System.out.println(pair.getTeam()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getIdentity());
                 }
 
-                for (GlyphColorPair creatureGlyph : gameSnapshot.getCreatureGlyphs()) {
-                    terminal.write(creatureGlyph.getGlyph(),creatureGlyph.getX(),creatureGlyph.getY(),creatureGlyph.getColor());
+                for (TeamIdentityPair creature : gameSnapshot.getCreatures()) {
+                   if(creature.getTeam() == CALABASH){
+                       World.getInstance().getCalabashes().get(creature.getIdentity()).setHealth(creature.getHealth());
+                       World.getInstance().getCalabashes().get(creature.getIdentity()).moveTo(creature.getX(), creature.getY());
+                   }
+                   else if (creature.getTeam() == MONSTER) {
+                       World.getInstance().getMonsters().get(creature.getIdentity()).setHealth(creature.getHealth());
+                       World.getInstance().getMonsters().get(creature.getIdentity()).moveTo(creature.getX(), creature.getY());
+                   }
+
                 }
                 repaint();
             }
@@ -161,8 +176,8 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         if (message != null) {
             messageQueue.add(message);
         }
-        screen.respondToUserBInput(message);
-        //repaint();
+        //screen.respondToUserBInput(message);
+        repaint();
 
     }
 
