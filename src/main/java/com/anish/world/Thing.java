@@ -49,6 +49,7 @@ public class Thing extends Thread{
     }
     public synchronized void setCreature(Creature creature) {
         assert (this.capable);
+        assert (this.isFree());
         this.creature = creature;
     }
     public void clearCreature() {

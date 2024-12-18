@@ -63,6 +63,7 @@ public class Monster extends Creature{
 
         }
         this.world.removeCreature(getX(),getY());
+        System.out.println("Calabash" + this.identity + " died");
 
     }
 

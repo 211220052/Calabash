@@ -74,14 +74,6 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         client.configureBlocking(false);
 
         while (true){
-            /*if(messageQueue.isEmpty()){
-                ByteBuffer buffer = ByteBuffer.allocate(64);
-                buffer.put((clientName + ": " + "defaultMessage").getBytes(StandardCharsets.UTF_8));
-                buffer.flip();
-                client.write(buffer);
-                System.out.println(clientName + ": " + "defaultMessage");
-                buffer.clear();
-            }*/
             while (!messageQueue.isEmpty()) {
                 String message = messageQueue.poll();
                 if (message != null) {
@@ -176,9 +168,6 @@ public class IntegratedClientB extends JFrame implements KeyListener {
         if (message != null) {
             messageQueue.add(message);
         }
-        //screen.respondToUserBInput(message);
-        repaint();
-
     }
 
     @Override

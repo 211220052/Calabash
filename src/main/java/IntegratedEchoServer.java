@@ -2,6 +2,7 @@ import com.anish.screen.Screen;
 import com.anish.screen.WorldScreen;
 import com.anish.world.World;
 import utils.GameSnapshot;
+import utils.TeamIdentityPair;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -51,7 +52,7 @@ public class IntegratedEchoServer {
         while (true) {
             if(!ifplay && clientAChannel != null && clientBChannel != null){
                 System.out.println("wait for game");
-                new Scanner(System.in).nextLine();
+                //new Scanner(System.in).nextLine();
                 World.getInstance().startCreatures();
                 ifplay =true;
             }
@@ -136,9 +137,13 @@ public class IntegratedEchoServer {
             screen = screen.respondToUserBInput(client_value);
         }
 
-        GameSnapshot snapshot = new GameSnapshot(World.getInstance());
+        GameSnapshot gameSnapshot = new GameSnapshot(World.getInstance());
 
-        byte[] dataReply = serialize(snapshot);
+        for(TeamIdentityPair pair: gameSnapshot.getCreatures()){
+            System.out.println(pair.getTeam()+ ", " + pair.getX()+ ", " +pair.getY()+ ", " +pair.getIdentity());
+        }
+
+        byte[] dataReply = serialize(gameSnapshot);
         System.out.println("serialize(snapshot)");
 
 

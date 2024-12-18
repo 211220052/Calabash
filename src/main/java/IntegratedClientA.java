@@ -59,9 +59,7 @@ public class IntegratedClientA extends JFrame implements KeyListener {
             clientA.startClient();
 
         }
-        catch (IOException | ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        } catch (InterruptedException e) {
+        catch (IOException | ClassNotFoundException | InterruptedException e) {
             throw new RuntimeException(e);
         }
 
@@ -74,14 +72,6 @@ public class IntegratedClientA extends JFrame implements KeyListener {
         client.configureBlocking(false);
 
         while (true){
-            /*if(messageQueue.isEmpty()){
-                ByteBuffer buffer = ByteBuffer.allocate(64);
-                buffer.put((clientName + ": " + "defaultMessage").getBytes(StandardCharsets.UTF_8));
-                buffer.flip();
-                client.write(buffer);
-                System.out.println(clientName + ": " + "defaultMessage");
-                buffer.clear();
-            }*/
             while (!messageQueue.isEmpty()) {
                 String message = messageQueue.poll();
                 if (message != null) {
@@ -176,9 +166,6 @@ public class IntegratedClientA extends JFrame implements KeyListener {
         if (message != null) {
             messageQueue.add(message);
         }
-        //screen.respondToUserAInput(message);
-        repaint();
-
     }
 
     @Override

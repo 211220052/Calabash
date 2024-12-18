@@ -15,6 +15,7 @@ public class Tile<T extends Thing> {
 
     public synchronized void setCreatureOnThing(Creature creature) {
         assert (this.thing.isCapable());
+        assert (this.thing.isFree());
         this.thing.setCreature(creature);
         creature.setTile(this);
         creature.setPosition(new Position(xPos, yPos));

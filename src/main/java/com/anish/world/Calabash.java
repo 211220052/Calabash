@@ -68,15 +68,14 @@ public class Calabash extends Creature{
 
         }
         this.world.removeCreature(getX(),getY());
+        System.out.println("Calabash" + this.identity + " died");
 
 
     }
 
 
 
-    public void setControlled(boolean controlled) {
-        isControlled = controlled;
-    }
+
 
     /*public void ssuspend() {
         LockSupport.park(); // 挂起当前线程

@@ -54,6 +54,8 @@ public class Creature extends Thing {
 
 
     public void moveTo(int xPos, int yPos) {
+        if(xPos == getX() && yPos == getY())
+            return;
         int pxPos = getX(), pyPos = getY();
         this.world.putCreature(this, xPos, yPos);
         this.world.removeCreature(pxPos, pyPos);
@@ -159,5 +161,8 @@ public class Creature extends Thing {
         return isControlled;
     }
 
+    public void setControlled(boolean controlled) {
+        isControlled = controlled;
+    }
 
 }

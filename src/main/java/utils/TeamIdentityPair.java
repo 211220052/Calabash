@@ -4,13 +4,8 @@ import java.awt.*;
 import java.io.Serializable;
 
 public class TeamIdentityPair implements Serializable {
-
-
     final int team;
     final int identity;
-
-
-
     final int health;
     final int x;
     final int y;

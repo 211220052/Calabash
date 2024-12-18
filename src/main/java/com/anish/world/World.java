@@ -177,6 +177,8 @@ public class World {
         for(int i=0;i<14;i++){
             monsters.add(new Monster(AsciiPanel.powderBlue,instance,i));
         }
+
+        monsters.get(monsterControlled).setControlled(true);
         String inputPath2 = getPath("gameProgress.txt");
         // 写入文件
         try (BufferedReader reader = new BufferedReader(new FileReader(inputPath2))) {
@@ -204,43 +206,6 @@ public class World {
     }
 
 
-    public void addCreatures() {
-        calabashes = new ArrayList<>(Arrays.asList(
-                new Calabash(AsciiPanel.ONE, getInstance(), 0),
-                new Calabash(AsciiPanel.TWO, getInstance(), 1),
-                new Calabash(AsciiPanel.THREE, getInstance(), 2),
-                new Calabash(AsciiPanel.FOUR, getInstance(), 3),
-                new Calabash(AsciiPanel.FIVE, getInstance(), 4),
-                new Calabash(AsciiPanel.SIX, getInstance(), 5),
-                new Calabash(AsciiPanel.SEVEN, getInstance(), 6))) ;
-        calabashes.get(calabashControlled).setControlled(true);
-
-        monsters = new ArrayList<>();
-        for(int i=0;i<14;i++){
-            monsters.add(new Monster(AsciiPanel.powderBlue,getInstance(),i));
-        }
-    }
-
-    public void putCreatures() {
-        Random rand = new Random();
-        int randx,randy;
-        for (int i = 0; i <= 20; ){
-            randx = rand.nextInt(dimension) + 1;
-            randy = rand.nextInt(dimension) + 1;
-            if(tiles[randx][randy].getThing().isCapable() && isCreatureFree(randx,randy)){
-                if(i<=6)
-                    this.putCreature(calabashes.get(i), randx, randy);
-                else
-                    this.putCreature(monsters.get(i-7), randx, randy);
-                i++;
-
-            }
-        }
-    }
-
-
-
-
 
     public void startCreatures(){
         for (int i = 0; i < 7; i++)
@@ -248,30 +213,6 @@ public class World {
         for(int i=0;i<14; i++)
             monsters.get(i).start();
         //calabashes.get(0).start();
-    }
-
-    /*public void suspendCreatures(){
-        for (int i = 0; i < 7; i++)
-            calabashes.get(i).ssuspend();
-        for(int i=0;i<14; i++)
-            monsters.get(i).ssuspend();
-        //calabashes.get(0).start();
-    }*/
-    public void continueCreatures(){
-        for (int i = 0; i < 7; i++)
-            LockSupport.unpark(calabashes.get(i));
-        for(int i=0;i<14; i++)
-            LockSupport.unpark(monsters.get(i));
-        //calabashes.get(0).start();
-    }
-
-
-    public void stopCreatures(){
-        for (int i = 0; i < 7; i++)
-            calabashes.get(i).interrupt();
-        for(int i=0;i<14; i++)
-            monsters.get(i).interrupt();
-
     }
 
     private static String getPath(String s){
