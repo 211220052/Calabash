@@ -19,8 +19,8 @@ jobs:
 
     - name: Build with Maven
       run: mvn clean install
-      working-directory: Calabash
+      
 
     - name: Test with Maven
       run: mvn test
-      working-directory: Calabash
+      
