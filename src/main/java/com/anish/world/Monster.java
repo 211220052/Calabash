@@ -41,8 +41,8 @@ public class Monster extends Creature{
                     for(int i =0;i<World.getInstance().getCalabashes().size();i++){
                         if(World.getInstance().getCalabashes().get(i).getIdentity() == bestMove.target.getIdentity()){
                             this.attackCreature(World.getInstance().getCalabashes().get(i));
-                            //System.out.print("Monster" + this.identity+" is attacking " + "Calabash" + bestMove.target.getIdentity());
-                            //System.out.println(" Calabash" + bestMove.target.getIdentity() + "'s health:" + World.getInstance().getCalabashes().get(i).health);
+                            System.out.print("Monster" + this.identity+" is attacking " + "Calabash" + bestMove.target.getIdentity());
+                            System.out.println(" Calabash" + bestMove.target.getIdentity() + "'s health:" + World.getInstance().getCalabashes().get(i).health);
                             break;
                         }
 

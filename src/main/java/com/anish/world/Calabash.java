@@ -40,8 +40,8 @@ public class Calabash extends Creature{
                     for(int i =0;i<World.getInstance().getMonsters().size();i++){
                         if(World.getInstance().getMonsters().get(i).getIdentity() == bestMove.target.getIdentity()){
                             this.attackCreature(World.getInstance().getMonsters().get(i));
-                            //System.out.print("Calabash" + this.identity+" is attacking " + "Monster" + bestMove.target.getIdentity());
-                            //System.out.println(" Monster" + bestMove.target.getIdentity() + "'s health:" + World.getInstance().getMonsters().get(i).health);
+                            System.out.print("Calabash" + this.identity+" is attacking " + "Monster" + bestMove.target.getIdentity());
+                            System.out.println(" Monster" + bestMove.target.getIdentity() + "'s health:" + World.getInstance().getMonsters().get(i).health);
                             break;
                         }
 
