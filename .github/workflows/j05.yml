@@ -1,0 +1,26 @@
+name: Maven Build
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Java
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'temurin'  
+        java-version: '11'      
+        cache: 'maven'
+      
+
+    - name: Build with Maven
+      run: mvn clean install
+      working-directory: Calabash
+
+    - name: Test with Maven
+      run: mvn test
+      working-directory: Calabash
