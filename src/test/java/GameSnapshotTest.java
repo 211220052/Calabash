@@ -20,7 +20,7 @@ public class GameSnapshotTest {
     @Before
     public void setUp() {
         // 创建一个模拟的World对象
-        world = new World(30,0); // 假设World类有一个无参构造函数
+        world = new World(30,0);
         generator = new BattleFieldGenerator(30);
         generator.generate();
         world.putBuildings();

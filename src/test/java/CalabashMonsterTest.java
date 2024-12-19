@@ -42,13 +42,6 @@ public class CalabashMonsterTest {
         assertEquals(0, monster.getIdentity());
     }
 
-//    @Test
-//    public void testRun() {
-//        // 测试 run 方法是否按预期工作
-//        // 注意：这个测试可能需要一些额外的逻辑来模拟外部世界和 Minimax 算法的行为
-//        // 由于 Minimax 算法实现复杂，这里我们不包含它的模拟
-//        // 你可以根据需要添加更多的测试方法来测试 run 方法中的不同路径
-//    }
 
     @Test
     public void testSetControlled() {
@@ -56,6 +49,4 @@ public class CalabashMonsterTest {
         calabash.setControlled(true);
         assertTrue(calabash.isControlled());
     }
-
-    // 你可以添加更多的测试方法来测试 Calabash 类的其他方法
 }
